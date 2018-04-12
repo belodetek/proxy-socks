@@ -90,7 +90,7 @@
     "electron-updater": "2.20.1"
   },
   "devDependencies": {
-    "electron": "1.8.2",
+    "electron": "1.8.3",
     "devtron": "1.4.0",
     "electron-builder": "20.0.4",
     "cli": "0.4.5",
