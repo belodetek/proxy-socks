@@ -9,6 +9,10 @@ This [Electron](https://electronjs.org/) desktop app starts a [SOCKSv5 proxy ser
 
 # instructions
 
+[![](https://raw.githubusercontent.com/ab77/netflix-proxy/master/static/digitalocean.png)](https://m.do.co/c/937b01397c94)
+
+* deploy an Ubuntu or Debian box (e.g. on [DigitalOcean](https://m.do.co/c/937b01397c94))
+
 ## client config
 * create SSH key locally and copy to the server
 
@@ -30,8 +34,6 @@ EOF
 ```
 
 ## server config
-* deploy an Ubuntu or Debian box (e.g. on [DigitalOcean](https://m.do.co/c/937b01397c94))
-
 * create `tunnel` user, set a password and key
 
         useradd -m tunnel -s /bin/bash\
