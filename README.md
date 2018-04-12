@@ -5,7 +5,7 @@
 Follow these [instructions](#instructions) to start building residential back-connect proxy network of Windows, Linux and OS X desktop PCs.
 
 # about
-This [Electron](https://electronjs.org/) desktop app starts a [SOCKSv5 proxy server](https://github.com/mscdex/socksv5) on the local machine and forwards a randomly advailable remote port on a [Linux box](#server-config) to itself on port over [SSH](https://github.com/mscdex/ssh2). It requires a few custom configurations on the remote server to find an available TCP port.
+This [Electron](https://electronjs.org/) desktop app starts a [SOCKSv5 proxy server](https://github.com/mscdex/socksv5) on the local machine and forwards a randomly advailable remote port on a [Linux box](#server-config) to itself over [SSH](https://github.com/mscdex/ssh2). It requires a few custom configurations on the remote server to find an available TCP port.
 
 # instructions
 
