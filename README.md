@@ -11,6 +11,8 @@ This [Electron](https://electronjs.org/) desktop app starts a [SOCKS server](htt
 
 [![](https://raw.githubusercontent.com/ab77/netflix-proxy/master/static/digitalocean.png)](https://m.do.co/c/937b01397c94)
 
+<p align="center"><a href="https://m.do.co/c/937b01397c94" target="_blank"><img src="https://raw.githubusercontent.com/ab77/netflix-proxy/master/static/digitalocean.png" width="300"></a></p>
+
 * deploy an Ubuntu or Debian box to be the proxy concentrator and note its public IP (e.g. on [DigitalOcean](https://m.do.co/c/937b01397c94))
 
 ## client config
@@ -73,7 +75,7 @@ service ssh restart
 
 * launch the app and note the forwarded port number
 
-![](https://raw.githubusercontent.com/ab77/proxy-socks/master/extra/proxy-socks.png)
+<p align="center"><img src="https://raw.githubusercontent.com/ab77/proxy-socks/master/extra/proxy-socks.png" width="300"/></p>
 
 > the app will attempt to insert itself into the appropriate start-up chain to start automatically with the operating system
 
