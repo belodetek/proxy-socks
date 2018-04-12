@@ -71,9 +71,7 @@ service ssh restart
 
 * launch the app and note the forwarded port number
 
-<p align="center"><img src="https://raw.githubusercontent.com/ab77/proxy-socks/master/extra/proxy-socks.png" width="400"/></p>
-
-> <img align="middle" src="https://raw.githubusercontent.com/ab77/proxy-socks/master/build/icon.png" width="64"> the app will attempt to insert itself into the appropriate start-up chain to start automatically with the operating system and appear minimised to tray
+> ![](https://raw.githubusercontent.com/ab77/proxy-socks/master/assets/app-icon/png/32.png) the app will attempt to insert itself into the appropriate start-up chain to start automatically with the operating system and appear minimised to tray
 
 * test connectivity to the proxy from the proxy concentrator
 
