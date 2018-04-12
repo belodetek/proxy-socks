@@ -85,7 +85,7 @@ service ssh restart
         root@ubuntu:# curl --socks5 127.0.0.1:{zzz} ifconfig.co
         {yyy}
 
-> you should see a random TCP port and public IPs if everything is working correctly 
+> you should see a random TCP port and two different public IPs if everything is working correctly 
 
 # next steps
 Every new installation of the app, will attempt to make a connection to the remote server and forward a random port to the local proxy. These proxies can then be exposed on the public interface of the server using [HAProxy](http://www.haproxy.org/), [OpenVPN](https://openvpn.net/) or a combination of tools. Once the ports are exposed, ensure appropriate ACLs are set.
