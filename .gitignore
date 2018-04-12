@@ -3,5 +3,4 @@
 *.log
 dev-app-update.yml
 dist/
-extra/
 node_modules/
