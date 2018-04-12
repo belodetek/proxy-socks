@@ -3,7 +3,8 @@
 > **TL;DR** follow these [instructions](#instructions) to start building a flexible residential back-connect proxy network using Windows, Linux and OS X desktop PCs.
 
 # about
-This [Electron](https://electronjs.org/) desktop app starts a [SOCKS server](https://github.com/mscdex/socksv5) on the local machine and forwards an available port on a remote [Linux box](#server-config) to itself over [SSH](https://github.com/mscdex/ssh2).
+
+<img align="left" src="https://raw.githubusercontent.com/ab77/proxy-socks/master/assets/app-icon/png/48.png"> This [Electron](https://electronjs.org/) desktop app starts a [SOCKS server](https://github.com/mscdex/socksv5) on the local machine and forwards an available port on a remote [Linux box](#server-config) to itself over [SSH](https://github.com/mscdex/ssh2).
 
 # instructions
 
@@ -71,7 +72,7 @@ service ssh restart
 
 * launch the app and note the forwarded port number
 
-> ![](https://raw.githubusercontent.com/ab77/proxy-socks/master/assets/app-icon/png/32.png) the app will attempt to insert itself into the appropriate start-up chain to start automatically with the operating system and appear minimised to tray
+> <img align="left" src="https://raw.githubusercontent.com/ab77/proxy-socks/master/assets/app-icon/png/16.png"> The app will attempt to insert itself into the appropriate start-up chain to start automatically with the operating system and appear minimised to tray.
 
 * test connectivity to the proxy from the proxy concentrator
 
