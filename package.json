@@ -1,0 +1,99 @@
+{
+  "name": "proxy-socks",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Electron app containing SOCKSv5 server and SSH2 client",
+  "author": {
+    "name": "belodetek.io",
+    "email": "team@belodetek.io",
+    "url" : "http://belodetek.io"
+  },
+  "repository": "https://github.com/ab77/proxy-socks",
+  "main": "main.js",
+  "scripts": {
+    "start": "yarn install && electron .",
+    "dev": "yarn install && electron . --debug",
+    "dist": "yarn install && build --linux --mac --win",
+    "release": "yarn install && build --linux --mac --win"
+  },
+  "build": {
+    "publish": [
+      "github"
+    ],
+    "asar": true,
+    "extraResources": [
+      "extra"
+    ],
+    "files": [
+      "!dist",
+      "!build",
+      "!.DS_Store",
+      "!.git*",
+      "!*.log",
+      "!*.lock",
+      "!dev-app-update.yaml"
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "appId": "com.proxy-socks.app",
+    "mac": {
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "category": "Network",
+      "icon": "build/icon.png"
+    },
+    "dmg": {
+      "icon": "build/icon.icns",
+      "background": "build/icon.png",
+      "contents": [
+        {
+          "x": 110,
+          "y": 150,
+          "type": "file"
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "license": "LICENSE",
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": true
+    }
+  },
+  "dependencies": {
+    "socksv5": "0.0.6",
+    "ssh2": "0.5",
+    "string.format": "1.3.1",
+    "auto-launch": "5.0.5",
+    "electron-updater": "2.20.1"
+  },
+  "devDependencies": {
+    "electron": "1.8.2",
+    "devtron": "1.4.0",
+    "electron-builder": "20.0.4",
+    "cli": "0.4.5",
+    "cliff": "0.1.10"
+  }
+}

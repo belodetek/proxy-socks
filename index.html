@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <h4>SOCKSv5 server (<script>document.write(process.platform)</script>-<script>document.write(process.arch)</script>)</h4>
+    <div>
+      <button id="start-server-btn">Start</button>
+      <button id="stop-server-btn">Stop</button>
+    </div>
+    <p><div id="server-info"></div></p>
+    <h4>SSH2 client</h4>
+    <table style="width:100%">
+      <tr>
+        <td>Connect</td>
+        <td><input type="text" id="connect" name="url" size=40 placeholder="user@server"></td> 
+      </tr>
+      <tr>
+        <td>Private key</td>
+        <td>
+          <input type="text" id="key" name="key" size=40 placeholder="SSH private key">
+          <button id="openFile" onclick="openFile()">Browse</button>
+        </td>
+      </tr>
+      <tr>
+        <td>Passphrase</td>
+        <td><input type="password" id="passphrase" size=40 name="key" placeholder="Optional key passphrase"></td>
+      </tr>
+    </table>
+    <script>
+      const electron = require('electron')
+      const app = electron.remote 
+      const dialog = app.dialog
+      let options = {
+        defaultPath: process.env.HOME + '/.' + require('./package.json').name,
+        properties: [
+          'openFile',
+          'showHiddenFiles'
+        ]
+      }
+      function openFile () {
+        let event = new Event('change')
+        let keyInput = document.getElementById('key')
+        try {
+          dialog.showOpenDialog(options, function (fileNames) {
+            if (fileNames === undefined) {
+              return
+            }
+            keyInput.value = fileNames[0]
+            keyInput.dispatchEvent(event)
+          })
+        } catch (err) {
+          console.log(err)
+        }
+      }
+    </script>
+    </br>
+    <div>
+      <button id="start-client-btn">Start</button>
+      <button id="stop-client-btn">Stop</button>
+    </div>
+    <p><div id="client-info"></div></p>
+    <script>
+      require('./renderer.js')
+    </script>
+  </body>
+</html>
