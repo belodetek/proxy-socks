@@ -48,7 +48,7 @@ EOF
 cat << EOF >> /etc/ssh/sshd_config
 
 Match User tunnel
-  ForceCommand . /home/tunnel/random_tcp_port
+  ForceCommand /home/tunnel/random_tcp_port
 EOF
 
 service ssh restart
@@ -73,4 +73,4 @@ service ssh restart
         {{proxy-public-ip}}
 
 # next steps
-Every new installation of the app, will attempt to make a connection to the remote server and forward a random port to the local SOCKS proxy. These proxies can be exposed on the public interface of the server using HAProxy, OpenVPN or a combination of tools.
+Every new installation of the app, will attempt to make a connection to the remote server and forward a random port to the local SOCKS proxy. These proxies can be exposed on the public interface of the server using [HAProxy](http://www.haproxy.org/), [OpenVPN](https://openvpn.net/) or a combination of tools.
