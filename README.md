@@ -60,9 +60,18 @@ service ssh restart
         # ssh -i ~/.proxy-socks/id_rsa tunnel@{{server}}
         57724
 
-* install the app and run it
+* download and install the app
 
-* test connectivity to the remote SOCKS proxy from the remote server
+|OS|release|
+|---|---|
+|Windows|[1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-setup-1.0.0.exe)|
+|Linux (AppImage)|[1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0-x86_64.AppImage)|
+|Linux (Snap)|[1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks_1.0.0_amd64.snap)|
+|Mac OS X|[1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0.dmg)|
+
+* launch the app and note the forwarded port number
+
+* test connectivity to the proxy from the remote server
 
         # netstat -a -n -p | grep LISTEN | grep 127.0.0.1
         tcp        0      0 127.0.0.1:57725         0.0.0.0:*               LISTEN      3121/sshd: tunnel
@@ -74,4 +83,8 @@ service ssh restart
         {{proxy-public-ip}}
 
 # next steps
-Every new installation of the app, will attempt to make a connection to the remote server and forward a random port to the local SOCKS proxy. These proxies can be exposed on the public interface of the server using [HAProxy](http://www.haproxy.org/), [OpenVPN](https://openvpn.net/) or a combination of tools.
+Every new installation of the app, will attempt to make a connection to the remote server and forward a random port to the local proxy. These proxies can then be exposed on the public interface of the server using [HAProxy](http://www.haproxy.org/), [OpenVPN](https://openvpn.net/) or a combination of tools.
+
+<hr>
+<p align="center">&copy; 2018 <a href="https://anton.belodedenko.me/belodetek/">belodetek</a></p>
+<p align="center"><a href="http://anton.belodedenko.me/"><img src="https://avatars2.githubusercontent.com/u/2033996?v=3&s=50"></a></p>
