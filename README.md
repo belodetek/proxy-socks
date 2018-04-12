@@ -38,89 +38,10 @@ EOF
           && cat ~/.ssh/authorized_keys > /home/tunnel/.ssh/authorized_keys
 
 * create `random_tcp_port` script
-```
-cat << EOF > /home/tunnel/random_tcp_port
-#!/usr/bin/env bash
 
-PIDFILE="/home/tunnel/\$(basename "\${0}").pid"
-
-function with_backoff {
-  local max_attempts=\${ATTEMPTS-5}
-  local timeout=\${TIMEOUT-1}
-  local attempt=0
-  local exitCode=0
-
-  while [[ \$attempt < \$max_attempts ]]
-  do
-    "\$@"
-    exitCode=\$?
-
-    if [[ \$exitCode == 0 ]]
-    then
-      break
-    fi
-
-    echo "Failure! Retrying in \$timeout.." 1>&2
-    sleep \$timeout
-    attempt=\$(( attempt + 1 ))
-    timeout=\$(( timeout * 2 ))
-  done
-
-  if [[ \$exitCode != 0 ]]
-  then
-    echo "You've failed me for the last time! (\$@)" 1>&2
-  fi
-
-  return \$exitCode
-}
-
-function random_unused_port {
-    local port=\$(shuf -i 10000-65000 -n 1)
-    netstat -lat | grep \$port > /dev/null
-    if [[ \$? == 1 ]] ; then
-        echo \$port
-    else
-        random_unused_port
-    fi
-}
-
-if [ -f "\${PIDFILE}" ]; then
-    PID=\$(cat "\${PIDFILE}")
-    ps -p \${PID} > /dev/null 2>&1
-    if [ $? -eq 0 ]; then
-      echo "\${0}: process already running (\${PID})"
-      exit 1
-    else
-      echo \$\$ > "\${PIDFILE}"
-      if [ \$? -ne 0 ]; then
-        echo "\${0}: could not create \${PIDFILE}"
-        exit 1
-      fi
-    fi
-else
-    echo \$\$ > "\${PIDFILE}"
-    if [ \$? -ne 0 ]; then
-      echo "\${0}: could not create \${PIDFILE}"
-      exit 1
-    fi
-    PID=\$(cat "\${PIDFILE}")
-fi
-
-if [ -f "\${PIDFILE}" ]; then
-    with_backoff random_unused_port
-fi
-rm "\${PIDFILE}"
-EOF
-
-chmod +x /home/tunnel/random_tcp_port
-chown tunnel:tunnel -hR /home/tunnel
-```
-
-* test script (e.g. TCP port between `10,000` and `65,000`)
-```
-# /home/tunnel/random_tcp_port
-39585
-```
+        wget -O /home/tunnel/random_tcp_port https://raw.githubusercontent.com/ab77/proxy-socks/master/extra/random_tcp_port
+        chmod +x /home/tunnel/random_tcp_port
+        chown tunnel:tunnel -hR /home/tunnel
 
 * update sshd config and restart
 ```
@@ -133,8 +54,23 @@ EOF
 service ssh restart
 ```
 
-* test connectivity
+* test script (e.g. TCP port between `10,000` and `65,000`)
 
-        ssh -i ~/.proxy-socks/id_rsa tunnel@{{server}}
+        # ssh -i ~/.proxy-socks/id_rsa tunnel@{{server}}
+        57724
 
-* ...
+* install the app and run it
+
+* test connectivity to the remote SOCKS proxy from the remote server
+
+        # netstat -a -n -p | grep LISTEN | grep 127.0.0.1
+        tcp        0      0 127.0.0.1:57725         0.0.0.0:*               LISTEN      3121/sshd: tunnel
+
+        root@ubuntu:# curl ifconfig.co
+        {{server-public-ip}}
+
+        root@ubuntu:# curl --socks5 127.0.0.1:57725 ifconfig.co
+        {{proxy-public-ip}}
+
+# next steps
+Every new installation of the app, will attempt to make a connection to the remote server and forward a random port to the local SOCKS proxy. These proxies can be exposed on the public interface of the server using HAProxy, OpenVPN or a combination of tools.
