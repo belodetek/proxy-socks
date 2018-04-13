@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+set +e
+
+haproxy_admin_port=1936
+starting_port=11080
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+grep 'password=.*' "${script_dir}/.env" > /dev/null 2>&1\
+  || (password=$(openssl rand -base64 12)\
+  && printf "declare -x password='${password}'" > "${script_dir}/.env")
+source "${script_dir}/.env"
+tmpcfg=$(mktemp)
+
+cat << EOF  > ${tmpcfg}
+global
+    daemon
+    maxconn 256
+
+defaults
+    mode tcp
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
+
+listen admin
+    mode http
+    bind *:${haproxy_admin_port}
+    stats enable
+    stats refresh 30s
+    stats hide-version
+    stats show-node
+    stats uri /
+    stats realm HAProxy\ Admin
+    stats auth admin:${password}
+
+EOF
+
+port=${starting_port}
+ports=${port}
+echo "listen random-proxy:${port}" >> ${tmpcfg}
+echo "    mode tcp" >> ${tmpcfg}
+echo "    bind *:${port}" >> ${tmpcfg}
+for proxy in $(netstat -a -n -p | grep -E '^tcp\s+0\s+0\s+127.0.0.1:[0-9]+\s+0\.0\.0\.0:\*\s+LISTEN\s+[0-9]+/sshd:\s+tunnel$' | awk '{print $4}'); do
+    echo "    server ${proxy} ${proxy} maxconn 32 check port $(echo ${proxy} | awk -F':' '{print $2}')" >> ${tmpcfg}
+    printf '\n' >> ${tmpcfg}
+done
+
+for proxy in $(netstat -a -n -p | grep -E '^tcp\s+0\s+0\s+127.0.0.1:[0-9]+\s+0\.0\.0\.0:\*\s+LISTEN\s+[0-9]+/sshd:\s+tunnel$' | awk '{print $4}'); do
+    json=$(/usr/bin/curl --connect-timeout 5 --max-time 10 --silent --fail --socks ${proxy} freegeoip.net/json/)
+    echo ${json} | jq '.'
+    city=$(echo $json | jq -r '.city' | sed 's/ /-/g')
+    [ "${city}" ] || city=Unknown
+    country=$(echo $json | jq -r '.country_name' | sed 's/ /-/g')
+    [ "${country}" ] || country=Unknown
+    ip=$(echo $json | jq -r '.ip')
+    [ ${ip} ] || ip=Unknown
+    port=$(( ${port} + 1 ))
+    if [ ! ${ports} ]; then ports=${port}; else ports="${ports},${port}";fi
+    listen="${country}-${city}:${port}"
+    echo "listen ${listen}" >> ${tmpcfg}
+    echo "    mode tcp" >> ${tmpcfg}
+    echo "    bind *:${port}" >> ${tmpcfg}
+    echo "    server ${ip}:$(echo ${proxy} | awk -F':' '{print $2}') ${proxy} maxconn 32 check port $(echo ${proxy} | awk -F':' '{print $2}')" >> ${tmpcfg}
+done
+
+if /usr/sbin/haproxy -c -f ${tmpcfg}; then
+    cat ${tmpcfg}
+    /sbin/iptables -I INPUT -p tcp -m multiport --dports ${ports} --syn -j DROP
+    /bin/sleep 1s
+    /usr/sbin/service haproxy restart
+    /sbin/iptables -D INPUT -p tcp -m multiport --dports ${ports} --syn -j DROP
+else
+    cat ${tmpcfg}
+fi
+rm ${tmpcfg}

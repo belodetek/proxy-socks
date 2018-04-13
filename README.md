@@ -88,7 +88,11 @@ service ssh restart
 > you should see a random TCP port and two different public IPs if everything is working correctly 
 
 # next steps
-Every new installation of the app, will attempt to make a connection to the remote server and forward a random port to the local proxy. These proxies can then be exposed on the public interface of the server using [HAProxy](http://www.haproxy.org/), [OpenVPN](https://openvpn.net/) or a combination of tools. Once the ports are exposed, ensure appropriate ACLs are set.
+Every new installation of the app, will attempt to make a connection to the remote server and forward a random port to the local proxy. These proxies can then be exposed on the public interface of the server using [HAProxy](http://www.haproxy.org/), [OpenVPN](https://openvpn.net/) or a combination of tools.
+
+An [example](https://raw.githubusercontent.com/ab77/proxy-socks/master/extra/update-haproxy) shell script can be used to automatically generate HAProxy configuration for all connected proxies.
+
+> Once the ports are exposed, ensure appropriate ACLs are set.
 
 <hr>
 <p align="center">&copy; 2018 <a href="https://anton.belodedenko.me/belodetek/">belodetek</a></p>

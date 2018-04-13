@@ -4,3 +4,4 @@
 dev-app-update.yml
 dist/
 node_modules/
+.env
