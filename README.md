@@ -20,6 +20,7 @@
           && ssh-copy-id -i ~/.proxy-socks/id_rsa.pub root@{proxy-concentrator}
 
 * create `config.json`, with the hostname or IP address of the proxy concentrator
+
 ```
 cat << EOF > ~/.proxy-socks/config.json
 {
@@ -46,6 +47,7 @@ EOF
         chown tunnel:tunnel -hR /home/tunnel
 
 * update sshd config and restart the service
+
 ```
 cat << EOF >> /etc/ssh/sshd_config
 
