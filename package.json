@@ -1,6 +1,6 @@
 {
   "name": "proxy-socks",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Electron app containing SOCKSv5 server and SSH2 client",
   "author": {
