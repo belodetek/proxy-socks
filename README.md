@@ -70,10 +70,10 @@ service ssh restart
 
 |OS|release|
 |---|---|
-|Windows|[1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-setup-1.0.0.exe)|
-|Linux (AppImage)|[1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0-x86_64.AppImage)|
-|Linux (Snap)|[1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks_1.0.0_amd64.snap)|
-|Mac OS X|[1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0.dmg)|
+|Windows|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-setup-1.0.1.exe), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-setup-1.0.0.exe)|
+|Linux (AppImage)|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.1-x86_64.AppImage), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0-x86_64.AppImage)|
+|Linux (Snap)|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks_1.0.1_amd64.snap), [previous](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks_1.0.0_amd64.snap)|
+|Mac OS X|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.1.dmg), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0.dmg)|
 
 * launch the app and note the forwarded port number
 
