@@ -1,7 +1,6 @@
 .DS_Store
 *.lock
 *.log
-dev-app-update.yml
 dist/
 node_modules/
 .env

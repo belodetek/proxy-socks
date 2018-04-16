@@ -20,7 +20,7 @@ ipc.on('starting-server', function (event, message) {
 
 ipc.on('started-server', function (event, message) {
   document.getElementById('server-info').innerHTML = message
-  if (message.toLowerCase().startsWith('socks server listening')) {
+  if (message.toLowerCase().startsWith('socks proxy running on')) {
     stopServerBtn.disabled = false
   } else {
     startServerBtn.disabled = false

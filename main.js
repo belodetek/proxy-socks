@@ -14,14 +14,17 @@ const Tray = electron.Tray
 const ipc = electron.ipcMain
 const BrowserWindow = electron.BrowserWindow
 const Client = require('ssh2').Client
+const socks = require('socksv5')
 
 const debug = /--debug/.test(process.argv[2])
 const default_ssh_port = 22
-const default_socks_port = 1080
+const default_socks_port = 1081
+const default_proxy_port = 1080
 
 let server
 let client
 let conn
+let proxy
 let mainWindow
 let trayIcon
 let trayMenu
@@ -63,11 +66,21 @@ try {
 }
 console.log(socks_port)
 
+let proxy_port
+try {
+  proxy_port = require(configFile).proxyPort
+  assert.notStrictEqual(proxy_port, undefined)
+} catch (err) {
+  console.log(err)
+  proxy_port = default_proxy_port
+}
+console.log(proxy_port)
+
 let privateKeyPath
 try {
   privateKeyPath = require(configFile).privateKey
 } catch (err) {
-  console.log(err) 
+  console.log(err)
 }
 console.log(privateKeyPath)
 
@@ -141,10 +154,6 @@ function createWindow () {
     mainWindow.hide()
   }
 
-
-  console.log(privateKeyPath)
-
-
   mainWindow.webContents.once('dom-ready', () => {
     try {
       if (fs.existsSync(path.normalize(privateKeyPath))) {
@@ -211,39 +220,14 @@ app.once('ready', () => {
   trayIcon.setToolTip(app.getName())
 })
 
-ipc.on('start-server', (event) => {
-  let socks = require('socksv5')
-  if (server === undefined ) {
-    event.sender.send('starting-server', 'Starting server...')
-    server = socks.createServer( (info, accept, deny) => {
-      accept()
-    }).listen(socks_port, '0.0.0.0', () => {
-      message = 'SOCKS server listening on port ' + socks_port
-      event.sender.send('started-server', message)
-    }).useAuth(socks.auth.None())
-  } else {
-    event.sender.send('started-server', 'Already running')
-  }
-})
-
-ipc.on('stop-server', (event) => {
-  if (server !== undefined ) {
-    event.sender.send('stopping-server', 'Stopping server...')
-    server.close()
-    server = undefined
-    event.sender.send('stopped-server', 'Server stopped')
-  } else {
-    event.sender.send('stopped-server', 'Not running')
-  }
-})
-
 function save_config() {
     let app_config = {
       username: ssh_config.username,
       host: ssh_config.host,
       port: ssh_config.port,
       privateKey: privateKeyPath,
-      socksPort: socks_port
+      socksPort: socks_port,
+      proxyPort: proxy_port
     }
     if (!fs.existsSync(configPath)) {
       fs.mkdirSync(configPath)
@@ -286,20 +270,23 @@ function forward_port(event, result) {
   conn = new Client()
   try {
     conn.on('ready', function() {
-      conn.forwardIn('127.0.0.1', result, function(err) {
+      conn.forwardIn('localhost', result, function(err) {
         if (err) {
           console.log(err)
           event.sender.send('stopped-client', err.message)
           client = undefined
         }
-        event.sender.send('started-client', `Client started on port ${result}`)
+        event.sender.send('started-client', `Forwarding port ${result} on remote to localhost:${socks_port}`)
         client = true
         save_config()
       })
     }).on('tcp connection', function(info, accept, deny) {
       var stream = accept()
       stream.pause()
-      let socket = net.connect(socks_port, '127.0.0.1', function () {
+      stream.on('error', function(err) {
+        console.log(err)
+      })
+      let socket = net.connect(socks_port, 'localhost', function () {
         stream.pipe(socket)
         socket.pipe(stream)
         stream.resume()
@@ -353,10 +340,15 @@ ipc.on('passphrase-input', (event, message) => {
 ipc.on('start-client', (event) => {
   if (ssh_config.username && ssh_config.host && ssh_config.port && ssh_config.privateKey) {
     if (client === undefined ) {
-      event.sender.send('starting-client', 'Starting client...')
+      event.sender.send('starting-client', 'Starting remote...')
       let p = get_port(event)
       p.then(function(result) {
         forward_port(event, result)
+        if (server === undefined ) {
+		  server = socks.createServer( (info, accept, deny) => {
+		    accept()
+		  }).listen(socks_port, 'localhost').useAuth(socks.auth.None())
+		}
       })
     } else {
       event.sender.send('started-client', 'Already running')
@@ -367,13 +359,66 @@ ipc.on('start-client', (event) => {
 })
 
 ipc.on('stop-client', (event) => {
+  if (server !== undefined) {
+    server.close()
+    server = undefined
+  }
   if (client !== undefined) {
-    event.sender.send('stopping-client', 'Stopping client...')
+    event.sender.send('stopping-client', 'Stopping remote...')
     conn.end()
     conn = undefined
     client = undefined
-    event.sender.send('stopped-client', 'Client stopped')
+    event.sender.send('stopped-client', 'Remote stopped')
   } else {
     event.sender.send('stopped-client', 'Not running')
+  }
+})
+
+ipc.on('start-server', (event) => {
+  if (proxy === undefined ) {
+    event.sender.send('starting-server', 'Starting proxy...')
+	proxy = socks.createServer(function(info, accept, deny) {
+	  let conn = new Client()
+	  conn.on('ready', function() {
+		conn.forwardOut(
+		  info.srcAddr, info.srcPort, info.dstAddr, info.dstPort, function(err, stream) {
+		  if (err) {
+			conn.end()
+			return deny()
+		  }
+		  let socket
+		  if (socket = accept(true)) {
+			stream.pipe(socket).on('error', function (err) {
+			  deny()
+			}).on('close', function (err) {
+			  conn.end();
+			}).pipe(stream).on('error', function (err) {
+			  deny()
+			}).on('close', function() {
+			  conn.end()
+			})
+		  } else
+			conn.end()
+		})
+	  }).on('error', function(err) {
+		deny()
+	  }).connect(ssh_config)
+	}).listen(proxy_port, 'localhost', () => {
+	  message = 'SOCKS proxy running on localhost:' + proxy_port
+	  event.sender.send('started-server', message)
+	}).useAuth(socks.auth.None())
+  } else {
+    event.sender.send('started-server', 'Already running')
+  }
+})
+
+ipc.on('stop-server', (event) => {
+  if (proxy !== undefined ) {
+    event.sender.send('stopping-server', 'Stopping proxy...')
+    proxy.close()
+    proxy = undefined
+    event.sender.send('stopped-server', 'Proxy stopped')
+  } else {
+    event.sender.send('stopped-server', 'Not running')
   }
 })

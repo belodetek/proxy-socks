@@ -31,7 +31,10 @@
       "!.git*",
       "!*.log",
       "!*.lock",
-      "!dev-app-update.yaml"
+      "!dev-app-update.yaml",
+      "!CNAME",
+      "!_config.yml",
+      "!README.md"
     ],
     "directories": {
       "buildResources": "build"
