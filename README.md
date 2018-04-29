@@ -4,7 +4,7 @@
 
 # about
 
-<img align="left" src="https://raw.githubusercontent.com/ab77/proxy-socks/master/assets/app-icon/png/48.png">  This [Electron](https://electronjs.org/) desktop app starts a [SOCKS server](https://github.com/mscdex/socksv5) locally on `proxyPort` and forwards an available port on a remote [Linux box](#server-config) to itself on `socksPort` over [SSH](https://github.com/mscdex/ssh2).
+<img align="left" src="https://raw.githubusercontent.com/ab77/proxy-socks/master/assets/app-icon/png/48.png">  This [Electron](https://electronjs.org/) desktop app starts a [SOCKS server](https://github.com/mscdex/socksv5) locally on `proxyPort` and forwards an available port on a remote [Linux box](#server-config) to a locally available TCP port over [SSH](https://github.com/mscdex/ssh2).
 
 SOCKS clients connecting to `proxyPort` will be proxied via the remote server. Similarly, remote connections will be proxied out the local WAN interface of the machine running the app.
 
@@ -30,7 +30,6 @@ cat << EOF > ~/.proxy-socks/config.json
     "host": "{proxy-concentrator}",
     "port": 22,
     "privateKey": "${HOME}/.proxy-socks/id_rsa",
-    "socksPort": 1081,
     "proxyPort": 1080
 }
 EOF

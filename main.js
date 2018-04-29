@@ -18,7 +18,6 @@ const socks = require('socksv5')
 
 const debug = /--debug/.test(process.argv[2])
 const default_ssh_port = 22
-const default_socks_port = 1081
 const default_proxy_port = 1080
 
 let server
@@ -55,16 +54,6 @@ if(iShouldQuit) {
 
 let configPath = path.resolve(process.env.HOME, '.' + appName)
 let configFile = path.resolve(configPath, 'config.json')
-
-let socks_port
-try {
-  socks_port = require(configFile).socksPort
-  assert.notStrictEqual(socks_port, undefined)
-} catch (err) {
-  console.log(err)
-  socks_port = default_socks_port
-}
-console.log(socks_port)
 
 let proxy_port
 try {
@@ -226,7 +215,6 @@ function save_config() {
       host: ssh_config.host,
       port: ssh_config.port,
       privateKey: privateKeyPath,
-      socksPort: socks_port,
       proxyPort: proxy_port
     }
     if (!fs.existsSync(configPath)) {
@@ -265,18 +253,18 @@ function get_port(event) {
   })
 }
 
-function forward_port(event, result) {
+function forward_port(event, rport, lport) {
   let net = require('net')
   conn = new Client()
   try {
     conn.on('ready', function() {
-      conn.forwardIn('localhost', result, function(err) {
+      conn.forwardIn('localhost', rport, function(err) {
         if (err) {
           console.log(err)
           event.sender.send('stopped-client', err.message)
           client = undefined
         }
-        event.sender.send('started-client', `Forwarding port ${result} on remote to localhost:${socks_port}`)
+        event.sender.send('started-client', `Forwarding port ${rport} on remote to localhost:${lport}`)
         client = true
         save_config()
       })
@@ -286,7 +274,7 @@ function forward_port(event, result) {
       stream.on('error', function(err) {
         console.log(err)
       })
-      let socket = net.connect(socks_port, 'localhost', function () {
+      let socket = net.connect(lport, 'localhost', function () {
         stream.pipe(socket)
         socket.pipe(stream)
         stream.resume()
@@ -341,15 +329,18 @@ ipc.on('start-client', (event) => {
   if (ssh_config.username && ssh_config.host && ssh_config.port && ssh_config.privateKey) {
     if (client === undefined ) {
       event.sender.send('starting-client', 'Starting remote...')
-      let p = get_port(event)
-      p.then(function(result) {
-        forward_port(event, result)
-        if (server === undefined ) {
-		  server = socks.createServer( (info, accept, deny) => {
-		    accept()
-		  }).listen(socks_port, 'localhost').useAuth(socks.auth.None())
-		}
-      })
+      if (server === undefined ) {
+		server = socks.createServer( (info, accept, deny) => {
+		  accept()
+		}).listen(0, 'localhost').useAuth(socks.auth.None())
+	  }
+	  server.on('listening', function() {
+	    let lport = server.address().port
+        let p = get_port(event)
+        p.then(function(rport) {
+          forward_port(event, rport, lport)
+        })
+	  })
     } else {
       event.sender.send('started-client', 'Already running')
     }
