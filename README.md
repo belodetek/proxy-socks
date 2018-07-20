@@ -42,11 +42,21 @@ EOF
           && mkdir -p /home/tunnel/.ssh\
           && cat ~/.ssh/authorized_keys > /home/tunnel/.ssh/authorized_keys
 
-* download `random_tcp_port` script and set permissions
+* create splash script and set permissions
 
-        wget -O /home/tunnel/random_tcp_port https://raw.githubusercontent.com/ab77/proxy-socks/master/extra/random_tcp_port
-        chmod +x /home/tunnel/random_tcp_port
-        chown tunnel:tunnel -hR /home/tunnel
+```
+cat << EOF > /home/tunnel/splash.sh
+#!/bin/sh
+echo '+--------------------------+'
+echo '|                          |'
+echo '|  Nothing to see here...  |'
+echo '|                          |'
+echo '+--------------------------+'
+EOF
+
+chmod +x /home/tunnel/splash.sh
+chown tunnel:tunnel -hR /home/tunnel
+```
 
 * update sshd config and restart the service
 
@@ -54,7 +64,7 @@ EOF
 cat << EOF >> /etc/ssh/sshd_config
 
 Match User tunnel
-  ForceCommand /home/tunnel/random_tcp_port
+  ForceCommand /home/tunnel/splash.sh
 EOF
 
 service ssh restart
@@ -69,10 +79,10 @@ service ssh restart
 
 |OS|release|
 |---|---|
-|Windows|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-setup-1.0.2.exe), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-setup-1.0.1.exe), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-setup-1.0.0.exe)|
-|Linux (AppImage)|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-1.0.2-x86_64.AppImage), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-1.0.1-x86_64.AppImage), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0-x86_64.AppImage)|
-|Linux (Snap)|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks_1.0.2_amd64.snap), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks_1.0.1_amd64.snap), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks_1.0.0_amd64.snap)|
-|Mac OS X|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-1.0.2.dmg), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-1.0.1.dmg), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0.dmg)|
+|Windows|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks-setup-1.0.3.exe), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-setup-1.0.2.exe), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-setup-1.0.1.exe), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-setup-1.0.0.exe)|
+|Linux (AppImage)|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks-1.0.3-x86_64.AppImage), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-1.0.2-x86_64.AppImage), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-1.0.1-x86_64.AppImage), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0-x86_64.AppImage)|
+|Linux (Snap)|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks_1.0.3_amd64.snap), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks_1.0.2_amd64.snap), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks_1.0.1_amd64.snap), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks_1.0.0_amd64.snap)|
+|Mac OS X|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks-1.0.3.dmg), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-1.0.2.dmg), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-1.0.1.dmg), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0.dmg)|
 
 * launch the app and note the forwarded port number
 
@@ -85,13 +95,13 @@ service ssh restart
         # netstat -a -n -p | grep LISTEN | grep 127.0.0.1
         tcp        0      0 127.0.0.1:{zzz}         0.0.0.0:*               LISTEN      1234/sshd: tunnel
 
-        root@ubuntu:# curl ifconfig.co
+        root@ubuntu:# curl -4 ifconfig.co
         {xxx}
-        
-        root@ubuntu:# curl --socks5 127.0.0.1:{zzz} ifconfig.co
+
+        root@ubuntu:# curl -4 --socks5 127.0.0.1:{zzz} ifconfig.co
         {yyy}
 
-> you should see a random TCP port and two different public IPs if everything is working correctly 
+> you should see a random TCP port and two different public IPs if everything is working correctly
 
 # next steps
 Every new installation of the app, will attempt to make a connection to the remote server and forward a random port to the local proxy. These proxies can then be exposed on the public interface of the server using [HAProxy](http://www.haproxy.org/), [OpenVPN](https://openvpn.net/) or a combination of tools.

@@ -223,36 +223,6 @@ function save_config() {
     fs.writeFileSync(configFile, JSON.stringify(app_config, null, 4), 'utf8')
 }
 
-function get_port(event) {
-  return new Promise(function (resolve, reject) {
-    let conn = new Client()
-    try {
-      conn.on('ready', function() {
-        conn.exec('', function(err, stream) {
-          if (err) {
-            console.log(err)
-            event.sender.send('stopped-client', err.message)
-          }
-          stream.on('close', function() {
-            conn.end()
-          }).on('data', function(data) {
-            resolve(parseInt(data.toString()))
-          }).on('error', function(err) {
-            console.log(err)
-            event.sender.send('stopped-client', err.message)
-          })
-        })
-      }).on('error', function(err) {
-        console.log(err)
-        event.sender.send('stopped-client', err.message)
-      }).connect(ssh_config)
-    } catch (err) {
-      console.log(err)
-      event.sender.send('stopped-client', err.message)
-    }
-  })
-}
-
 function forward_port(event, rport, lport) {
   let net = require('net')
   conn = new Client()
@@ -336,10 +306,7 @@ ipc.on('start-client', (event) => {
 	  }
 	  server.on('listening', function() {
 	    let lport = server.address().port
-        let p = get_port(event)
-        p.then(function(rport) {
-          forward_port(event, rport, lport)
-        })
+ 		forward_port(event, 0, lport)
 	  })
     } else {
       event.sender.send('started-client', 'Already running')
