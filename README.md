@@ -70,13 +70,6 @@ EOF
 service ssh restart
 ```
 
-* test script (e.g. `{zzz}` should return TCP port between `10,000` and `65,000`)
-
-        # ssh -i ~/.proxy-socks/id_rsa tunnel@{proxy-concentrator}
-        {zzz}
-
-* download and install the app
-
 |OS|release|
 |---|---|
 |Windows|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks-setup-1.0.3.exe), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-setup-1.0.2.exe), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-setup-1.0.1.exe), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-setup-1.0.0.exe)|
