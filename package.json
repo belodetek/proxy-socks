@@ -1,6 +1,6 @@
 {
   "name": "proxy-socks",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "license": "MIT",
   "description": "Electron app containing SOCKSv5 server and SSH2 client",
   "author": {
@@ -13,7 +13,6 @@
   "scripts": {
     "start": "yarn install && electron .",
     "dev": "yarn install && electron . --debug",
-    "dist": "yarn install && build --linux --mac --win",
     "release": "yarn install && build --linux --mac --win"
   },
   "build": {
@@ -87,10 +86,10 @@
   },
   "dependencies": {
     "socksv5": "git://github.com/mscdex/socksv5.git",
-    "ssh2": "*",
+    "ssh2": "git://github.com/mscdex/ssh2.git",
     "string.format": "*",
     "auto-launch": "*",
-    "electron-updater": "*"
+    "update-electron-app": "*"
   },
   "devDependencies": {
     "electron": "*",

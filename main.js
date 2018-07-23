@@ -6,7 +6,7 @@ const path = require('path')
 const url = require('url')
 const spawn = require('child_process').spawn
 const AutoLaunch = require('auto-launch')
-const autoUpdater = require('electron-updater').autoUpdater
+require('update-electron-app')()
 const electron = require('electron')
 const app = electron.app
 const Menu = electron.Menu
@@ -182,7 +182,6 @@ function createWindow () {
 }
 
 app.once('ready', () => {
-  autoUpdater.checkForUpdates()
   createWindow()
   trayIcon = new Tray(path.resolve(
     path.normalize(
