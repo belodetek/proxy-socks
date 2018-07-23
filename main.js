@@ -228,7 +228,7 @@ function forward_port(event, rport, lport) {
   conn = new Client()
   try {
     conn.on('ready', function() {
-      conn.forwardIn('localhost', rport, function(err) {
+      conn.forwardIn('::', rport, function(err) {
         if (err) {
           console.log(err)
           event.sender.send('stopped-client', err.message)
@@ -244,7 +244,7 @@ function forward_port(event, rport, lport) {
       stream.on('error', function(err) {
         console.log(err)
       })
-      let socket = net.connect(lport, 'localhost', function () {
+      let socket = net.connect(lport, '::', function () {
         stream.pipe(socket)
         socket.pipe(stream)
         stream.resume()
@@ -302,7 +302,7 @@ ipc.on('start-client', (event) => {
       if (server === undefined ) {
 		server = socks.createServer( (info, accept, deny) => {
 		  accept()
-		}).listen(0, 'localhost').useAuth(socks.auth.None())
+		}).listen(0, '::').useAuth(socks.auth.None())
 	  }
 	  server.on('listening', function() {
 	    let lport = server.address().port
@@ -336,10 +336,12 @@ ipc.on('start-server', (event) => {
   if (proxy === undefined ) {
     event.sender.send('starting-server', 'Starting proxy...')
 	proxy = socks.createServer(function(info, accept, deny) {
+	  if (debug) {
+	    console.log(info, accept, deny);
+	  }
 	  let conn = new Client()
 	  conn.on('ready', function() {
-		conn.forwardOut(
-		  info.srcAddr, info.srcPort, info.dstAddr, info.dstPort, function(err, stream) {
+		conn.forwardOut(info.srcAddr, info.srcPort, info.dstAddr, info.dstPort, function(err, stream) {
 		  if (err) {
 			conn.end()
 			return deny()
@@ -361,7 +363,7 @@ ipc.on('start-server', (event) => {
 	  }).on('error', function(err) {
 		deny()
 	  }).connect(ssh_config)
-	}).listen(proxy_port, 'localhost', () => {
+	}).listen(proxy_port, '::', () => {
 	  message = 'SOCKS proxy running on localhost:' + proxy_port
 	  event.sender.send('started-server', message)
 	}).useAuth(socks.auth.None())
