@@ -51,7 +51,7 @@ if(iShouldQuit) {
   return
 }
 
-let dir = process.env.HOME + '/.' + appName
+let dir = path.join(process.env.HOME, '.' + appName)
 if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
 }
