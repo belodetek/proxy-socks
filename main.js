@@ -1,12 +1,11 @@
 require('string.format')
 
-const fs = require('fs')
 const assert = require('assert')
+const fs = require('fs')
 const path = require('path')
 const url = require('url')
 const spawn = require('child_process').spawn
 const AutoLaunch = require('auto-launch')
-require('update-electron-app')()
 const electron = require('electron')
 const app = electron.app
 const Menu = electron.Menu
@@ -52,7 +51,11 @@ if(iShouldQuit) {
   return
 }
 
-let configPath = path.resolve(process.env.HOME, '.' + appName)
+let dir = process.env.HOME + '/.' + appName
+if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir)
+}
+let configPath = path.resolve(dir)
 let configFile = path.resolve(configPath, 'config.json')
 
 let proxy_port
@@ -182,6 +185,7 @@ function createWindow () {
 }
 
 app.once('ready', () => {
+  require('update-electron-app')()
   createWindow()
   trayIcon = new Tray(path.resolve(
     path.normalize(
