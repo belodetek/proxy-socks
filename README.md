@@ -8,11 +8,13 @@
 
 SOCKS clients connecting to `proxyPort` will be proxied via the remote server. Similarly, remote connections will be proxied out the local WAN interface of the machine running the app.
 
+
 # instructions
 
 <p align="left"><a href="https://m.do.co/c/937b01397c94" target="_blank"><img src="https://raw.githubusercontent.com/ab77/netflix-proxy/master/static/digitalocean.png" width="300"></a></p>
 
 * deploy an Ubuntu or Debian box to be the proxy concentrator and note its public IP (e.g. on [DigitalOcean](https://m.do.co/c/937b01397c94))
+
 
 ## client config
 * create SSH key locally and copy to the the proxy concentrator
@@ -34,6 +36,7 @@ cat << EOF > ~/.proxy-socks/config.json
 }
 EOF
 ```
+
 
 ## server config
 * on the proxy concentrator create `tunnel` user, set a password and authorize keys
@@ -72,10 +75,10 @@ service ssh restart
 
 |OS|release|
 |---|---|
-|Windows|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks-setup-1.0.3.exe), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-setup-1.0.2.exe), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-setup-1.0.1.exe), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-setup-1.0.0.exe)|
-|Linux (AppImage)|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks-1.0.3-x86_64.AppImage), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-1.0.2-x86_64.AppImage), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-1.0.1-x86_64.AppImage), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0-x86_64.AppImage)|
-|Linux (Snap)|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks_1.0.3_amd64.snap), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks_1.0.2_amd64.snap), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks_1.0.1_amd64.snap), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks_1.0.0_amd64.snap)|
-|Mac OS X|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks-1.0.3.dmg), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-1.0.2.dmg), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-1.0.1.dmg), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0.dmg)|
+|Windows|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.4/proxy-socks-setup-1.0.4.exe), [1.0.3](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks-setup-1.0.3.exe), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-setup-1.0.2.exe), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-setup-1.0.1.exe), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-setup-1.0.0.exe)|
+|Linux (AppImage)|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.4/proxy-socks-1.0.4-x86_64.AppImage), [1.0.3](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks-1.0.3-x86_64.AppImage), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-1.0.2-x86_64.AppImage), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-1.0.1-x86_64.AppImage), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0-x86_64.AppImage)|
+|Linux (Snap)|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.4/proxy-socks_1.0.4_amd64.snap), [1.0.3](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks_1.0.3_amd64.snap), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks_1.0.2_amd64.snap), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks_1.0.1_amd64.snap), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks_1.0.0_amd64.snap)|
+|Mac OS X|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.4/proxy-socks-1.0.4.dmg), [1.0.3](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks-1.0.3.dmg), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-1.0.2.dmg), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-1.0.1.dmg), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-1.0.0.dmg)|
 
 * launch the app and note the forwarded port number
 
@@ -86,15 +89,30 @@ service ssh restart
 * test connectivity to the proxy from the proxy concentrator
 
         # netstat -a -n -p | grep LISTEN | grep 127.0.0.1
-        tcp        0      0 127.0.0.1:{zzz}         0.0.0.0:*               LISTEN      1234/sshd: tunnel
+        tcp        0      0 127.0.0.1:{zzz}         0.0.0.0:* ...
 
         root@ubuntu:# curl -4 ifconfig.co
         {xxx}
 
-        root@ubuntu:# curl -4 --socks5 127.0.0.1:{zzz} ifconfig.co
+        root@ubuntu:# curl -4 --socks5 localhost:{zzz} ifconfig.co
         {yyy}
 
 > you should see a random TCP port and two different public IPs if everything is working correctly
+
+
+# IPv6
+
+> the server is listening on both `AF_INET` and `AF_INET6` sockets
+
+        # netstat -a -n -p | grep LISTEN | grep ::1
+        tcp6       0      0 ::1:{zzz}               :::* ...
+
+        root@ubuntu:# curl -6 ifconfig.co
+        {xxx}
+
+        root@ubuntu:# curl -6 --socks5 localhost:{zzz} ifconfig.co
+        {yyy}
+
 
 # next steps
 Every new installation of the app, will attempt to make a connection to the remote server and forward a random port to the local proxy. These proxies can then be exposed on the public interface of the server using [HAProxy](http://www.haproxy.org/), [OpenVPN](https://openvpn.net/) or a combination of tools.
