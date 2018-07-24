@@ -56,7 +56,7 @@ if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
 }
 let configPath = path.resolve(dir)
-let configFile = path.resolve(configPath, 'config.json')
+let configFile = path.join(configPath, 'config.json')
 
 let proxy_port
 try {
@@ -100,7 +100,7 @@ try {
 }
 console.log(ssh_config)
 
-if (path.resolve(__dirname).endsWith('app.asar')) {
+if (resourcesPath.endsWith('app.asar')) {
   let AutoLauncher = new AutoLaunch({
     name: appName
   })
