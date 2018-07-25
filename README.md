@@ -73,6 +73,11 @@ EOF
 service ssh restart
 ```
 
+
+## installing
+
+The Windows binary is not signed and modern Chrome/Windows will try to prevent it from running. If this is important to you, you can get a signing certificate from one of the [vendors](https://www.sslshopper.com/microsoft-authenticode-certificates.html) and build a signed release.
+
 |OS|release|
 |---|---|
 |Windows|[latest](https://github.com/ab77/proxy-socks/releases/download/v1.0.4/proxy-socks-setup-1.0.4.exe), [1.0.3](https://github.com/ab77/proxy-socks/releases/download/v1.0.3/proxy-socks-setup-1.0.3.exe), [1.0.2](https://github.com/ab77/proxy-socks/releases/download/v1.0.2/proxy-socks-setup-1.0.2.exe), [1.0.1](https://github.com/ab77/proxy-socks/releases/download/v1.0.1/proxy-socks-setup-1.0.1.exe), [1.0.0](https://github.com/ab77/proxy-socks/releases/download/v1.0.0/proxy-socks-setup-1.0.0.exe)|
