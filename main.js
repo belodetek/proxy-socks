@@ -14,7 +14,7 @@ const ipc = electron.ipcMain
 const BrowserWindow = electron.BrowserWindow
 const Client = require('ssh2').Client
 const socks = require('socksv5')
-
+const homedir = require('os').homedir()
 const debug = /--debug/.test(process.argv[2])
 const default_ssh_port = 22
 const default_proxy_port = 1080
@@ -51,7 +51,7 @@ if(iShouldQuit) {
   return
 }
 
-let dir = path.join(process.env.HOME, '.' + appName)
+let dir = path.join(homedir, '.' + appName)
 if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
 }
