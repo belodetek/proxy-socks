@@ -1,5 +1,6 @@
 require('string.format')
 
+const net = require('net')
 const assert = require('assert')
 const fs = require('fs')
 const path = require('path')
@@ -17,12 +18,15 @@ const socks = require('socksv5')
 const homedir = require('os').homedir()
 const debug = /--debug/.test(process.argv[2])
 const default_ssh_port = 22
-const default_proxy_port = 1080
+const default_proxy_remote = '172.20.0.10'    // e.g. Docker container running Squid, etc.
+const default_socks_port = 1080
+const default_squid_port = 3128
 
 let server
 let client
 let conn
-let proxy
+let socks_proxy
+let squid_proxy
 let mainWindow
 let trayIcon
 let trayMenu
@@ -34,7 +38,7 @@ if (resourcesPath.endsWith('app.asar')) {
   extraResources = path.resolve(resourcesPath, '..', 'extra')
 }
 
-var iShouldQuit = app.makeSingleInstance( () => {
+let iShouldQuit = app.makeSingleInstance( () => {
   if (mainWindow) {
     if (mainWindow.isMinimized())
       mainWindow.restore()
@@ -58,15 +62,35 @@ if (!fs.existsSync(dir)) {
 let configPath = path.resolve(dir)
 let configFile = path.join(configPath, 'config.json')
 
-let proxy_port
+let proxy_remote
 try {
-  proxy_port = require(configFile).proxyPort
-  assert.notStrictEqual(proxy_port, undefined)
+  proxy_remote = require(configFile).proxyRemote
+  assert.notStrictEqual(proxy_remote, undefined)
 } catch (err) {
   console.log(err)
-  proxy_port = default_proxy_port
+  proxy_remote = default_proxy_remote
 }
-console.log(proxy_port)
+console.log(proxy_remote)
+
+let squid_port
+try {
+  squid_port = require(configFile).squidPort
+  assert.notStrictEqual(squid_port, undefined)
+} catch (err) {
+  console.log(err)
+  squid_port = default_squid_port
+}
+console.log(squid_port)
+
+let socks_port
+try {
+  socks_port = require(configFile).socksPort
+  assert.notStrictEqual(socks_port, undefined)
+} catch (err) {
+  console.log(err)
+  socks_port = default_socks_port
+}
+console.log(socks_port)
 
 let privateKeyPath
 try {
@@ -184,6 +208,61 @@ function createWindow () {
   })
 }
 
+function save_config() {
+    let app_config = {
+      username: ssh_config.username,
+      host: ssh_config.host,
+      port: ssh_config.port,
+      privateKey: privateKeyPath,
+      squidPort: squid_port,
+      socksPort: socks_port,
+      proxyRemote: proxy_remote
+    }
+    if (!fs.existsSync(configPath)) {
+      fs.mkdirSync(configPath)
+    }
+    fs.writeFileSync(configFile, JSON.stringify(app_config, null, 4), 'utf8')
+}
+
+function forward_port(event, rport, lport) {
+  let net = require('net')
+  conn = new Client()
+  try {
+    conn.on('ready', function() {
+      conn.forwardIn('::', rport, function(err) {
+        if (err) {
+          console.log(err)
+          event.sender.send('stopped-client', err.message)
+          client = undefined
+        }
+        event.sender.send('started-client', `Forwarding port ${rport} on remote to localhost:${lport}`)
+        client = true
+        save_config()
+      })
+    }).on('tcp connection', function(info, accept, deny) {
+      let stream = accept()
+      stream.pause()
+      stream.on('error', function(err) {
+        console.log(err)
+      })
+      let socket = net.connect(lport, '::', function () {
+        stream.pipe(socket)
+        socket.pipe(stream)
+        stream.resume()
+      })
+      socket.on('error', function(err) {
+        console.log(err)
+      })
+    }).on('error', function(err) {
+      console.log(err)
+      event.sender.send('stopped-client', err.message)
+    }).connect(ssh_config)
+  } catch (err) {
+    console.log(err)
+    event.sender.send('stopped-client', err.message)
+  }
+}
+
 app.once('ready', () => {
   require('update-electron-app')()
   createWindow()
@@ -211,59 +290,6 @@ app.once('ready', () => {
   trayIcon.setContextMenu(trayMenu)
   trayIcon.setToolTip(app.getName())
 })
-
-function save_config() {
-    let app_config = {
-      username: ssh_config.username,
-      host: ssh_config.host,
-      port: ssh_config.port,
-      privateKey: privateKeyPath,
-      proxyPort: proxy_port
-    }
-    if (!fs.existsSync(configPath)) {
-      fs.mkdirSync(configPath)
-    }
-    fs.writeFileSync(configFile, JSON.stringify(app_config, null, 4), 'utf8')
-}
-
-function forward_port(event, rport, lport) {
-  let net = require('net')
-  conn = new Client()
-  try {
-    conn.on('ready', function() {
-      conn.forwardIn('::', rport, function(err) {
-        if (err) {
-          console.log(err)
-          event.sender.send('stopped-client', err.message)
-          client = undefined
-        }
-        event.sender.send('started-client', `Forwarding port ${rport} on remote to localhost:${lport}`)
-        client = true
-        save_config()
-      })
-    }).on('tcp connection', function(info, accept, deny) {
-      var stream = accept()
-      stream.pause()
-      stream.on('error', function(err) {
-        console.log(err)
-      })
-      let socket = net.connect(lport, '::', function () {
-        stream.pipe(socket)
-        socket.pipe(stream)
-        stream.resume()
-      })
-      socket.on('error', function(err) {
-        console.log(err)
-      })
-    }).on('error', function(err) {
-      console.log(err)
-      event.sender.send('stopped-client', err.message)
-    }).connect(ssh_config)
-  } catch (err) {
-    console.log(err)
-    event.sender.send('stopped-client', err.message)
-  }
-}
 
 ipc.on('connect-input', (event, message) => {
   try {
@@ -298,6 +324,7 @@ ipc.on('passphrase-input', (event, message) => {
   }
 })
 
+// SOCKS proxy (inbound) listing on random local port
 ipc.on('start-client', (event) => {
   if (ssh_config.username && ssh_config.host && ssh_config.port && ssh_config.privateKey) {
     if (client === undefined ) {
@@ -336,51 +363,101 @@ ipc.on('stop-client', (event) => {
 })
 
 ipc.on('start-server', (event) => {
-  if (proxy === undefined ) {
-    event.sender.send('starting-server', 'Starting proxy...')
-	proxy = socks.createServer(function(info, accept, deny) {
+  let proxy_ports = []
+  // SSH tunnel localhost:3128 => docker0:3128
+  if (squid_proxy === undefined ) {
+    event.sender.send('starting-server', 'Starting HTTP(S) proxy tunnel...')
+	squid_proxy = net.createServer(function(sock) {
 	  if (debug) {
-	    console.log(info, accept, deny);
+	    console.log(sock)
 	  }
 	  let conn = new Client()
 	  conn.on('ready', function() {
-		conn.forwardOut(info.srcAddr, info.srcPort, info.dstAddr, info.dstPort, function(err, stream) {
+		conn.forwardOut(sock.remoteAddress, sock.remotePort, proxy_remote, squid_port, function(err, stream) {
 		  if (err) {
 			conn.end()
 			return deny()
 		  }
-		  let socket
-		  if (socket = accept(true)) {
-			stream.pipe(socket).on('error', function (err) {
-			  deny()
-			}).on('close', function (err) {
-			  conn.end();
-			}).pipe(stream).on('error', function (err) {
-			  deny()
-			}).on('close', function() {
-			  conn.end()
-			})
-		  } else
-			conn.end()
+		  if (debug) {
+			console.log(stream)
+		  }
+		  stream.pipe(sock).on('error', function (err) {
+		    deny()
+		  }).on('close', function (err) {
+		    conn.end();
+		  }).pipe(stream).on('error', function (err) {
+		    deny()
+		  }).on('close', function() {
+	  	    conn.end()
+	  	  })
 		})
 	  }).on('error', function(err) {
 		deny()
 	  }).connect(ssh_config)
-	}).listen(proxy_port, '::', () => {
-	  message = 'SOCKS proxy running on localhost:' + proxy_port
+	}).listen(squid_port, '::', () => {
+	  if (!proxy_ports.indexOf(squid_port) > -1) { proxy_ports.push(squid_port) }
+	  message = 'Proxy tunnel(s) localhost: ' + proxy_ports
 	  event.sender.send('started-server', message)
-	}).useAuth(socks.auth.None())
+	})
+  } else {
+    event.sender.send('started-server', 'Already running')
+  }
+
+  // SSH tunnel localhost:3128 => docker0:3128
+  if (socks_proxy === undefined ) {
+    event.sender.send('starting-server', 'Starting SOCKS proxy tunnel...')
+	socks_proxy = net.createServer(function(sock) {
+	  if (debug) {
+	    console.log(sock)
+	  }
+	  let conn = new Client()
+	  conn.on('ready', function() {
+		conn.forwardOut(sock.remoteAddress, sock.remotePort, proxy_remote, socks_port, function(err, stream) {
+		  if (err) {
+			conn.end()
+			return deny()
+		  }
+		  if (debug) {
+			console.log(stream)
+		  }
+		  stream.pipe(sock).on('error', function (err) {
+		    deny()
+		  }).on('close', function (err) {
+		    conn.end();
+		  }).pipe(stream).on('error', function (err) {
+		    deny()
+		  }).on('close', function() {
+	  	    conn.end()
+	  	  })
+		})
+	  }).on('error', function(err) {
+		deny()
+	  }).connect(ssh_config)
+	}).listen(socks_port, '::', () => {
+	  if (!proxy_ports.indexOf(socks_port) > -1) { proxy_ports.push(socks_port) }
+	  message = 'Proxy tunnel(s) localhost: ' + proxy_ports
+	  event.sender.send('started-server', message)
+	})
   } else {
     event.sender.send('started-server', 'Already running')
   }
 })
 
 ipc.on('stop-server', (event) => {
-  if (proxy !== undefined ) {
-    event.sender.send('stopping-server', 'Stopping proxy...')
-    proxy.close()
-    proxy = undefined
-    event.sender.send('stopped-server', 'Proxy stopped')
+  if (squid_proxy !== undefined ) {
+    event.sender.send('stopping-server', 'Stopping tunnel...')
+    squid_proxy.close()
+    squid_proxy = undefined
+    event.sender.send('stopped-server', 'Tunnel stopped')
+  } else {
+    event.sender.send('stopped-server', 'Not running')
+  }
+
+  if (socks_proxy !== undefined ) {
+    event.sender.send('stopping-server', 'Stopping tunnel...')
+    socks_proxy.close()
+    socks_proxy = undefined
+    event.sender.send('stopped-server', 'Tunnel stopped')
   } else {
     event.sender.send('stopped-server', 'Not running')
   }
