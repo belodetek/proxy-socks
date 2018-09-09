@@ -1,12 +1,12 @@
 # proxy-socks
 
-> **TL;DR** follow these [instructions](#instructions) to start building a flexible residential back-connect proxy network using Windows, Linux and OS X desktop PCs.
+> **TL;DR** follow these [instructions](#instructions) to start building a flexible residential back-connect proxy network on any platform running [Electron](https://electronjs.org/).
 
 # about
 
-<img align="left" src="https://raw.githubusercontent.com/ab77/proxy-socks/master/assets/app-icon/png/48.png">  This [Electron](https://electronjs.org/) desktop app starts a [SOCKS server](https://github.com/mscdex/socksv5) locally on `proxyPort` and forwards an available port on a remote [Linux box](#server-config) to a locally available TCP port over [SSH](https://github.com/mscdex/ssh2).
+<img align="left" src="https://raw.githubusercontent.com/ab77/proxy-socks/master/assets/app-icon/png/48.png">  This [Electron](https://electronjs.org/) desktop app forwards `socksPort` and `squidPort` to `proxyRemote` IP on the remote server over [SSH](https://github.com/mscdex/ssh2) and in reverse, forwards a random port on a remote [Linux box](#server-config) to a [SOCKS](https://github.com/mscdex/socksv5) proxy running locally.
 
-Clients connecting to `squidPort` or `socksPort` on the machine running the app, will be tunneled to `proxyRemote` on remote server. Similarly, remote connections will be proxied out the local WAN interface of the machine running the app. It is up to you to handle incoming client connections on the remote server using HAProxy, Squid, etc.
+Clients connecting to `squidPort` or `socksPort` on the machine running the app, will be tunneled to `proxyRemote` on remote server. Similarly, remote SOCKS connections will be proxied out the local WAN interface of the machine running the app. It is up to you to handle incoming client connections on the remote server using HAProxy, Squid, etc.
 
 
 # instructions
