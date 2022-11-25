@@ -1,0 +1,11 @@
+- commits:
+    - subject: Integrate Flowzone CI
+      hash: 9cfae09fe1fda3397195ebd4e60634265eaf5880
+      body: ""
+      footer:
+        Change-type: patch
+        change-type: patch
+      author: belodetek
+  version: 0.0.2
+  title: ""
+  date: 2022-11-25T17:32:43.392Z

@@ -1,13 +1,13 @@
 {
   "name": "proxy-socks",
-  "version": "1.0.5",
+  "version": "0.0.2",
   "license": "MIT",
   "description": "Electron app containing SOCKSv5 server and SSH2 client",
   "private": true,
   "author": {
     "name": "belodetek.io",
     "email": "team@belodetek.io",
-    "url" : "http://belodetek.io"
+    "url": "http://belodetek.io"
   },
   "repository": "https://github.com/ab77/proxy-socks",
   "main": "main.js",
@@ -99,5 +99,8 @@
     "electron-builder": "*",
     "cli": "*",
     "cliff": "*"
+  },
+  "versionist": {
+    "publishedAt": "2022-11-25T17:32:43.483Z"
   }
 }
